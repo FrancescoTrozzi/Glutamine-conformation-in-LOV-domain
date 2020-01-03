@@ -19,59 +19,78 @@ gln_indices = np.load(args.gln_indices)
 
 def main():
     if args.state == 'dark': 
-        dihedral_radians = fc.gln_array(gln_indices[:,0], gln_indices[:,1], gln_indices[:,2], gln_indices[:,3])
-        dihedral_degrees = fc.radians_to_degrees(dihedral_radians)
+        dihedrals_radians_A = fc.gln_array(gln_indices[0,0], gln_indices[0,1], gln_indices[0,2])
+        dihedrals_degrees_A = fc.radians_to_degrees(angles_radians)
+        dihedrals_radians_B = fc.gln_array(gln_indices[1,0], gln_indices[1,1], gln_indices[1,2])
+        dihedrals_degrees_B = fc.radians_to_degrees(angles_radians)
 
         # for each frame of the trajectory check the existance of the H-bond
         for i in range(len(traj)):
             dark_I_tot = 0
             dark_II_tot = 0
             coor = traj[i]
-            bonding_frames_n = 0 
-            active_frames_n = 0 
-            h = hbd.Hbonds(coor, indexDonor=indices[:,0], indexHydrogen=indices[:,1], indexAcceptor=indices[:,2], indexPreAcceptor=indices[:,3])
+            bonding_frames_n = 0
+            active_frames_n = 0
+            h_A = hbd.Hbonds(coor, indexDonor=indices[0,0], indexHydrogen=indices[0,1],
+                           indexAcceptor=indices[0,2], indexPreAcceptor=indices[0,3])
+            h_B = hbd.Hbonds(coor, indexDonor=indices[1,0], indexHydrogen=indices[1,1],
+                           indexAcceptor=indices[1,2], indexPreAcceptor=indices[1,3])
 
             # if H-Bond is present calculate the type of GLN conformation
-            if h.criteria_checker():
+            if h_A.criteria_checker():
                 bonding_frames_n += 1
-                dark_I, dark_II = fc.Exp_vs_burI(dihedral_degrees[i])
+                dark_I, dark_II = fc.Exp_vs_burI(angles_degrees_A[i])
+                dark_I_tot += dark_I
+                dark_II_tot += dark_II
+            
+	    if h_B.criteria_checker():
+                bonding_frames_n += 1
+                dark_I, dark_II = fc.Exp_vs_burI(angles_degrees_B[i])
                 dark_I_tot += dark_I
                 dark_II_tot += dark_II
 
-        # print the frequencies in which the two dark conformations are present 
         dark_I_freq = (dark_I_tot/bonding_frames_n)*100
         dark_II_freq = (dark_II_tot/bonding_frames_n)*100
         print(dark_I_freq)
         print(dark_II_freq)
 
     elif args.state == 'light':
-        angles_radians = fc.gln_array(gln_indices[:,0], gln_indices[:,1], gln_indices[:,2])
-        angles_degrees = fc.radians_to_degrees(angles_radians)
+        angles_radians_A = fc.gln_array(gln_indices[0,0], gln_indices[0,1], gln_indices[0,2])
+        angles_degrees_A = fc.radians_to_degrees(angles_radians)
+        angles_radians_B = fc.gln_array(gln_indices[1,0], gln_indices[1,1], gln_indices[1,2])
+        angles_degrees_B = fc.radians_to_degrees(angles_radians)
 
         # for each frame of the trajectory check the existance of the H-bond
         for i in range(len(traj)):
             light_I_tot = 0
             light_II_tot = 0
             coor = traj[i]
-            bonding_frames_n = 0 
-            active_frames_n = 0 
-            h = hbd.Hbonds(coor, indexDonor=indices[:,0], indexHydrogen=indices[:,1], indexAcceptor=indices[:,2], indexPreAcceptor=indices[:,3])
+            bonding_frames_n = 0
+            active_frames_n = 0
+            h_A = hbd.Hbonds(coor, indexDonor=indices[0,0], indexHydrogen=indices[0,1],
+                           indexAcceptor=indices[0,2], indexPreAcceptor=indices[0,3])
+            h_B = hbd.Hbonds(coor, indexDonor=indices[1,0], indexHydrogen=indices[1,1],
+                           indexAcceptor=indices[1,2], indexPreAcceptor=indices[1,3])
 
              # if H-Bond is present calculate the type of GLN conformation
-            if h.criteria_checker():
+            if h_A.criteria_checker():
                 bonding_frames_n += 1
                 light_I, light_II = fc.burII_vs_burIII(angles_degrees[i])
                 light_I_tot += light_I
-                light_II_tot += light_II     
-                
-        # print the frequencies in which the two light conformations are present       
+                light_II_tot += light_II
+
+            if h_B.criteria_checker():
+                bonding_frames_n += 1
+                light_I, light_II = fc.burII_vs_burIII(angles_degrees[i])
+                light_I_tot += light_I
+                light_II_tot += light_II
+
+        # print the frequencies in which the two light conformations are present
         light_I_freq = (light_I_tot/bonding_frames_n)*100
         light_II_freq = (light_II_tot/bonding_frames_n)*100
         print(light_I_freq)
         print(light_II_freq)
 
 
-# Execute 
+# Execute
 main()
-
-
