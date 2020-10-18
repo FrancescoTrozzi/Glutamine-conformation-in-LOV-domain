@@ -14,9 +14,9 @@ args = parser.parse_args()
 
 
 #Load data
-traj1 = md.load(args.trajectory+'_01_50000_tot.dcd', top=args.trajectory+'.pdb')
-traj2 = md.load(args.trajectory+'_02_50000_tot.dcd', top=args.trajectory+'.pdb')
-traj3 = md.load(args.trajectory+'_03_50000_tot.dcd', top=args.trajectory+'.pdb')
+traj1 = md.load(args.trajectory+'.dcd', top=args.trajectory+'.pdb')
+traj2 = md.load(args.trajectory+'.dcd', top=args.trajectory+'.pdb')
+traj3 = md.load(args.trajectory+'.dcd', top=args.trajectory+'.pdb')
 
 #Sum the trajectories
 traj = traj1 + traj2 + traj3
